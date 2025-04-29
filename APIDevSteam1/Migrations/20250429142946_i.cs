@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace APIDevSteam1.Migrations
 {
     /// <inheritdoc />
-    public partial class jogo : Migration
+    public partial class i : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -73,7 +73,8 @@ namespace APIDevSteam1.Migrations
                     Preco = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Desconto = table.Column<int>(type: "int", nullable: false),
                     Banner = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Descricao = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Descricao = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PrecoOriginal = table.Column<decimal>(type: "decimal(18,2)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -187,6 +188,29 @@ namespace APIDevSteam1.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Carrinhos",
+                columns: table => new
+                {
+                    CarrinhoId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CarrinhoNome = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UsuarioId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UsuarioId1 = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    Finalizado = table.Column<bool>(type: "bit", nullable: false),
+                    DataCriacao = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DataFinalizacao = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    valorTotal = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Carrinhos", x => x.CarrinhoId);
+                    table.ForeignKey(
+                        name: "FK_Carrinhos_AspNetUsers_UsuarioId1",
+                        column: x => x.UsuarioId1,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "JogosCategorias",
                 columns: table => new
                 {
@@ -225,6 +249,34 @@ namespace APIDevSteam1.Migrations
                     table.PrimaryKey("PK_JogosMidias", x => x.JogoMidiaId);
                     table.ForeignKey(
                         name: "FK_JogosMidias_Jogos_JogoId",
+                        column: x => x.JogoId,
+                        principalTable: "Jogos",
+                        principalColumn: "JogoId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ItensCarrinhos",
+                columns: table => new
+                {
+                    ItemCarrinhoId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CarrinhoId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    JogoId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Quantidade = table.Column<int>(type: "int", nullable: false),
+                    PrecoUnitario = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    PrecoTotal = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ItensCarrinhos", x => x.ItemCarrinhoId);
+                    table.ForeignKey(
+                        name: "FK_ItensCarrinhos_Carrinhos_CarrinhoId",
+                        column: x => x.CarrinhoId,
+                        principalTable: "Carrinhos",
+                        principalColumn: "CarrinhoId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ItensCarrinhos_Jogos_JogoId",
                         column: x => x.JogoId,
                         principalTable: "Jogos",
                         principalColumn: "JogoId",
@@ -271,6 +323,21 @@ namespace APIDevSteam1.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Carrinhos_UsuarioId1",
+                table: "Carrinhos",
+                column: "UsuarioId1");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ItensCarrinhos_CarrinhoId",
+                table: "ItensCarrinhos",
+                column: "CarrinhoId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ItensCarrinhos_JogoId",
+                table: "ItensCarrinhos",
+                column: "JogoId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_JogosCategorias_CategoriaID",
                 table: "JogosCategorias",
                 column: "CategoriaID");
@@ -305,6 +372,9 @@ namespace APIDevSteam1.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "ItensCarrinhos");
+
+            migrationBuilder.DropTable(
                 name: "JogosCategorias");
 
             migrationBuilder.DropTable(
@@ -314,13 +384,16 @@ namespace APIDevSteam1.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "Carrinhos");
 
             migrationBuilder.DropTable(
                 name: "Categorias");
 
             migrationBuilder.DropTable(
                 name: "Jogos");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUsers");
         }
     }
 }
